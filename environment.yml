@@ -1,0 +1,7 @@
+name: princeton-covid
+dependencies:
+  - python >= 3.4
+  - numpy
+  - jupyter
+  - pandas
+  - matplotlib
