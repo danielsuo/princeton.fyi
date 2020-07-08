@@ -1,3 +1,5 @@
+import os
+
 from setuptools import find_packages
 from setuptools import setup
 
@@ -7,7 +9,7 @@ with open(
     long_description = f.read()
 
 setup(
-    name="princeton-covid",
+    name="provid",
     version="0.0.1",
     author="Daniel Suo",
     author_email="danielsuo@gmail.com",
@@ -30,6 +32,7 @@ setup(
         "numpy",
         "jupyter",
         "pandas",
-        "matplotlib"
+        "matplotlib",
+        "requests"
     ],
 )

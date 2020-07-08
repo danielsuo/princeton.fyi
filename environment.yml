@@ -1,7 +1,8 @@
-name: princeton-covid
+name: provid
 dependencies:
   - python >= 3.4
   - numpy
   - jupyter
   - pandas
   - matplotlib
+  - requests
