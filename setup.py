@@ -35,4 +35,9 @@ setup(
         "matplotlib",
         "requests"
     ],
+    entry_points={
+        "console_scripts": [
+            "update_data = provid.source:download_all"
+        ]
+    }
 )
