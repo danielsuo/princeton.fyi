@@ -48,4 +48,6 @@ function set_text(id, text) {
 }
 
 update_chart('case-chart', [12, 19, 3, 5, 2, 3])
+update_chart('test-chart', [12, 19, 3, 5, 2, 3])
+update_chart('death-chart', [12, 19, 3, 5, 2, 3])
 set_text('active-cases', 10)
