@@ -1,3 +1,7 @@
+// https://github.com/nagix/chartjs-plugin-datasource
+// https://stackoverflow.com/questions/53118166/how-to-set-time-scale-zoom-in-chartjs
+// https://github.com/chartjs/chartjs-plugin-zoom
+
 function update_chart(id, data) {
   var ctx = document.getElementById(id).getContext('2d');
   return new Chart(ctx, {
