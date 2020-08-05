@@ -1,6 +1,5 @@
-var ctx = document.getElementById('case-chart').getContext('2d');
-
-function case_chart(data) {
+function update_chart(id, data) {
+  var ctx = document.getElementById(id).getContext('2d');
   return new Chart(ctx, {
       type: 'bar',
       data: {
@@ -39,4 +38,10 @@ function case_chart(data) {
   });
 }
 
-case_chart([12, 19, 3, 5, 2, 3])
+function set_text(id, text) {
+  var ctx = document.getElementById(id)
+  ctx.innerHTML = text
+}
+
+update_chart('case-chart', [12, 19, 3, 5, 2, 3])
+set_text('active-cases', 10)
