@@ -4,7 +4,8 @@ from setuptools import find_packages
 from setuptools import setup
 
 with open(
-    os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md"), encoding="utf-8",
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md"),
+    encoding="utf-8",
 ) as f:
     long_description = f.read()
 
@@ -28,16 +29,7 @@ setup(
     ],
     keywords=["covid", "Princeton", "New Jersey", "NJ", "covid-19"],
     python_requires=">=3.4",
-    install_requires=[
-        "numpy",
-        "jupyter",
-        "pandas",
-        "matplotlib",
-        "requests"
-    ],
-    entry_points={
-        "console_scripts": [
-            "update_data = provid.source:download_all"
-        ]
-    }
+    install_requires=["numpy", "jupyter", "pandas", "matplotlib", "requests"],
+    extra_requires={"dev": ["black", "pylint"]},
+    entry_points={"console_scripts": ["update_data = provid.source:download_all"]},
 )
