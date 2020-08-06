@@ -13,7 +13,7 @@ from provid.source._county_population import CountyPopulation
 from provid.source._princeton import Princeton
 
 
-def download_all(national_patient=False):
+def download(national_patient=False, fetch=True):
     data = {}
     sources = [
         NationalData(),
@@ -27,11 +27,19 @@ def download_all(national_patient=False):
     if national_patient:
         sources.append(NationalPatient())
     for source in sources:
-        print("Downloading {}...".format(source.filename))
         data[source.filename] = source
-        source.download()
+        if fetch:
+            print("Downloading {}...".format(source.filename))
+            source.download()
 
     return data
+
+
+def pad_zeros(table):
+    for col in table.columns:
+        table[col].iloc[:np.argmin(table[col])] = 0
+
+    return table
 
 
 def update_local(data, dates):
@@ -62,18 +70,21 @@ def update_local(data, dates):
             right_index=True,
         )
 
-    for df in local:
-        local_table[df].iloc[: np.argmin(local_table[df])] = 0
+    local_table = pad_zeros(local_table)
 
-    local_table = local_table.interpolate(method="time", limit_direction="both")
+    # local_table = local_table.interpolate(method="time", limit_direction="both")
+    local_table = local_table.fillna(method="ffill")
     del local_table[0]
 
     local_diffs = local_table.diff()
     local_diffs.columns = [col.replace("total", "new") for col in local_table.columns]
 
     local_table = pd.concat([local_table, local_diffs], axis=1)
+    local_table = local_table.round()
+    local_table = pad_zeros(local_table)
 
     local_table.to_csv("timeseries/local.csv")
+    local_table.new_cases.to_csv("timeseries/local_new_cases.csv")
 
 
 def update_county(data, dates):
@@ -103,16 +114,17 @@ def update_county(data, dates):
             right_index=True,
         )
 
-    for df in county:
-        county_table[df].iloc[: np.argmin(county_table[df])] = 0
+    county_table = pad_zeros(county_table)
+    # county_table = county_table.interpolate(method="time", limit_direction="both")
 
-    county_table = county_table.interpolate(method="time", limit_direction="both")
+    county_table = county_table.fillna(method="ffill")
     del county_table[0]
 
     county_diffs = county_table.diff()
     county_diffs.columns = [col.replace("total", "new") for col in county_table.columns]
 
     county_table = pd.concat([county_table, county_diffs], axis=1)
+    county_table = pad_zeros(county_table)
 
     county_table.to_csv("timeseries/county.csv")
 
@@ -125,9 +137,9 @@ def update_state(data, dates):
         pd.DataFrame(dates), state, how="outer", left_index=True, right_index=True
     )
     state_table = state_table._get_numeric_data()
-    for column in state_table.columns:
-        state_table[column].iloc[: np.argmin(state_table[column])] = 0
-    state_table = state_table.interpolate(method="time", limit_direction="both")
+    state_table = pad_zeros(state_table)
+    # state_table = state_table.interpolate(method="time", limit_direction="both")
+    state_table = state_table.fillna(method="ffill")
     state_table.to_csv("timeseries/state.csv")
 
 
@@ -139,14 +151,14 @@ def update_national(data, dates):
         pd.DataFrame(dates), national, how="outer", left_index=True, right_index=True
     )
     national_table = national_table._get_numeric_data()
-    for column in national_table.columns:
-        national_table[column].iloc[: np.argmin(national_table[column])] = 0
-    national_table = national_table.interpolate(method="time", limit_direction="both")
+    national_table = pad_zeros(national_table)
+    # national_table = national_table.interpolate(method="time", limit_direction="both")
+    national_table = national_table.fillna(method="ffill")
     national_table.to_csv("timeseries/national.csv")
 
 
 def update(national_patient=False):
-    data = download_all(national_patient=national_patient)
+    data = download(national_patient=national_patient, fetch=False)
 
     for source in data.values():
         source.parse()

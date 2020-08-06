@@ -1,16 +1,30 @@
+.geo {
+  position: fixed;
+  float: right;
+  z-index: 999;
+  right: 1em;
+}
+
+@media (min-width: 768px) {
+  .geo {
+    right: 2em;
+  }
+}
+
 .nav > li {
   margin-left: .4em;
+  margin-bottom: .4em;
 }
 
 .nav > li img {
   padding: .15em;
   background: #f4f5f7;
-  border-radius: .2em;
-  height: 30px;
+  border-radius: .4em;
 }
 
 .nav > li img.active {
   padding: .15em;
-  background: #5e72e4;
+  background: #2dce89;
   border-radius: .2em;
 }
+

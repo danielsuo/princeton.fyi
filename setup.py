@@ -31,5 +31,10 @@ setup(
     python_requires=">=3.4",
     install_requires=["numpy", "jupyter", "pandas", "matplotlib", "requests"],
     extra_requires={"dev": ["black", "pylint"]},
-    entry_points={"console_scripts": ["update_data = provid.source:update"]},
+    entry_points={
+        "console_scripts": [
+            "update = provid.source:update",
+            "download = provid.source:download",
+        ]
+    },
 )
