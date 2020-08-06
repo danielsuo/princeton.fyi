@@ -1,0 +1,16 @@
+.nav > li {
+  margin-left: .4em;
+}
+
+.nav > li img {
+  padding: .15em;
+  background: #f4f5f7;
+  border-radius: .2em;
+  height: 30px;
+}
+
+.nav > li img.active {
+  padding: .15em;
+  background: #5e72e4;
+  border-radius: .2em;
+}

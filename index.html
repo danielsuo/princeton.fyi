@@ -49,6 +49,7 @@
       href="assets/css/argon.css?v=1.2.0"
       type="text/css"
     />
+    <link rel="stylesheet" href="assets/css/provid.css" type="text/css" />
   </head>
 
   <body>
@@ -258,38 +259,31 @@
                   </div>
                   <div class="col">
                     <ul class="nav nav-pills justify-content-end">
-                      <li
-                        class="nav-item mr-2 mr-md-0"
-                        data-toggle="chart"
-                        data-target="#case-chart"
-                        data-prefix="$"
-                        data-suffix="k"
-                      >
-                        <a
-                          href="#"
-                          class="nav-link py-2 px-3 active"
-                          data-toggle="tab"
-                        >
-                          <span class="d-none d-md-block">Month</span>
-                          <span class="d-md-none">M</span>
-                        </a>
+                      <li>
+                        <img
+                          class="active"
+                          src="assets/img/princeton-seal.png"
+                          onclick="clicked(this)"
+                        />
                       </li>
-                      <li
-                        class="nav-item"
-                        data-toggle="chart"
-                        data-target="#case-chart"
-                        data-prefix="$"
-                        data-suffix="k"
-                      >
-                        <a
-                          href="#"
-                          class="nav-link py-2 px-3"
-                          data-toggle="tab"
-                          onclick="update_chart('case-chart', [1, 1, 1, 1, 1, 1])"
-                        >
-                          <span class="d-none d-md-block">Week</span>
-                          <span class="d-md-none">W</span>
-                        </a>
+                      <li>
+                        <img
+                          src="assets/img/mercer-seal.png"
+                          onclick="clicked(this)"
+                        />
+                      </li>
+                      <li>
+                        <img
+                          src="assets/img/nj-seal.png"
+                          onclick="clicked(this)"
+                        />
+                      </li>
+                      <li>
+                        <img
+                          src="assets/img/usa-seal.png"
+                          id="case-nav-usa"
+                          onclick="clicked(this)"
+                        />
                       </li>
                     </ul>
                   </div>
@@ -318,13 +312,7 @@
                   </div>
                   <div class="col">
                     <ul class="nav nav-pills justify-content-end">
-                      <li
-                        class="nav-item mr-2 mr-md-0"
-                        data-toggle="chart"
-                        data-target="#test-chart"
-                        data-prefix="$"
-                        data-suffix="k"
-                      >
+                      <li>
                         <a
                           href="#"
                           class="nav-link py-2 px-3 active"
@@ -334,13 +322,7 @@
                           <span class="d-md-none">M</span>
                         </a>
                       </li>
-                      <li
-                        class="nav-item"
-                        data-toggle="chart"
-                        data-target="#test-chart"
-                        data-prefix="$"
-                        data-suffix="k"
-                      >
+                      <li>
                         <a
                           href="#"
                           class="nav-link py-2 px-3"
@@ -377,13 +359,7 @@
                   </div>
                   <div class="col">
                     <ul class="nav nav-pills justify-content-end">
-                      <li
-                        class="nav-item mr-2 mr-md-0"
-                        data-toggle="chart"
-                        data-target="#death-chart"
-                        data-prefix="$"
-                        data-suffix="k"
-                      >
+                      <li>
                         <a
                           href="#"
                           class="nav-link py-2 px-3 active"
@@ -393,13 +369,7 @@
                           <span class="d-md-none">M</span>
                         </a>
                       </li>
-                      <li
-                        class="nav-item"
-                        data-toggle="chart"
-                        data-target="#death-chart"
-                        data-prefix="$"
-                        data-suffix="k"
-                      >
+                      <li>
                         <a
                           href="#"
                           class="nav-link py-2 px-3"
@@ -433,7 +403,7 @@
                     <h3 class="mb-0">Cases by age group</h3>
                   </div>
                   <!--<div class="col text-right">-->
-                    <!--<a href="#!" class="btn btn-sm btn-primary">See all</a>-->
+                  <!--<a href="#!" class="btn btn-sm btn-primary">See all</a>-->
                   <!--</div>-->
                 </div>
               </div>
@@ -535,7 +505,7 @@
                     <h3 class="mb-0">Deaths by age group</h3>
                   </div>
                   <!--<div class="col text-right">-->
-                    <!--<a href="#!" class="btn btn-sm btn-primary">See all</a>-->
+                  <!--<a href="#!" class="btn btn-sm btn-primary">See all</a>-->
                   <!--</div>-->
                 </div>
               </div>
@@ -743,7 +713,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datasource"></script>
     <!-- Argon JS -->
     <script src="assets/js/argon.js?v=1.2.0"></script>
-    <script src="assets/js/charts.js"></script>
+    <script src="assets/js/provid.js"></script>
   </body>
 </html>
 
