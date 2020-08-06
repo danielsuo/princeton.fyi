@@ -86,6 +86,8 @@ def update_local(data, dates):
 
     local_table.to_csv("timeseries/local.csv")
     local_table.new_cases.to_csv("timeseries/local_case.csv")
+    local_table.new_tests.to_csv("timeseries/local_test.csv")
+    local_table.new_deaths.to_csv("timeseries/local_death.csv")
 
 
 def update_county(data, dates):
@@ -129,6 +131,10 @@ def update_county(data, dates):
     county_table[county_table < 0] = 0
 
     county_table.to_csv("timeseries/county.csv")
+    county_table.new_cases.to_csv("timeseries/county_case.csv")
+    county_table.new_deaths.to_csv("timeseries/county_death.csv")
+    county_table["new_tests"] = 0
+    county_table.new_tests.to_csv("timeseries/county_test.csv")
 
 
 def update_state(data, dates):
@@ -140,9 +146,24 @@ def update_state(data, dates):
     )
     state_table = state_table._get_numeric_data()
     state_table = pad_zeros(state_table)
-    # state_table = state_table.interpolate(method="time", limit_direction="both")
     state_table = state_table.fillna(method="ffill")
+    # state_table = state_table.interpolate(method="time", limit_direction="both")
+    state_table["total_tests"] = state_table.positive + state_table.negative
+    state_table["total_cases"] = state_table.positive
+    state_table["total_deaths"] = state_table.death
+
+    state_table = state_table[["total_tests", "total_cases", "total_deaths"]]
+    state_diffs = state_table.diff()
+    state_diffs.columns = [col.replace("total", "new") for col in state_table.columns]
+
+    state_table = pd.concat([state_table, state_diffs], axis=1)
+    state_table = state_table.fillna(value=0)
+    state_table[state_table < 0] = 0
+
     state_table.to_csv("timeseries/state.csv")
+    state_table.new_cases.to_csv("timeseries/state_case.csv")
+    state_table.new_tests.to_csv("timeseries/state_test.csv")
+    state_table.new_deaths.to_csv("timeseries/state_death.csv")
 
 
 def update_national(data, dates):
@@ -154,9 +175,24 @@ def update_national(data, dates):
     )
     national_table = national_table._get_numeric_data()
     national_table = pad_zeros(national_table)
-    # national_table = national_table.interpolate(method="time", limit_direction="both")
     national_table = national_table.fillna(method="ffill")
+    # national_table = national_table.interpolate(method="time", limit_direction="both")
+    national_table["total_tests"] = national_table.positive + national_table.negative
+    national_table["total_cases"] = national_table.positive
+    national_table["total_deaths"] = national_table.death
+
+    national_table = national_table[["total_tests", "total_cases", "total_deaths"]]
+    national_diffs = national_table.diff()
+    national_diffs.columns = [col.replace("total", "new") for col in national_table.columns]
+
+    national_table = pd.concat([national_table, national_diffs], axis=1)
+    national_table = national_table.fillna(value=0)
+    national_table[national_table < 0] = 0
+
     national_table.to_csv("timeseries/national.csv")
+    national_table.new_cases.to_csv("timeseries/national_case.csv")
+    national_table.new_tests.to_csv("timeseries/national_test.csv")
+    national_table.new_deaths.to_csv("timeseries/national_death.csv")
 
 
 def update(national_patient=False):

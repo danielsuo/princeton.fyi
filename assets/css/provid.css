@@ -18,13 +18,12 @@
 
 .nav > li img {
   padding: .15em;
-  background: #f4f5f7;
   border-radius: .4em;
+  background: #dee2e6;
 }
 
 .nav > li img.active {
   padding: .15em;
-  background: #2dce89;
   border-radius: .2em;
 }
 

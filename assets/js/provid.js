@@ -2,8 +2,11 @@
 // https://stackoverflow.com/questions/53118166/how-to-set-time-scale-zoom-in-chartjs
 // https://github.com/chartjs/chartjs-plugin-zoom
 
-function update_chart(id, geo) {
-  var ctx = document.getElementById(id).getContext("2d");
+var charts = []
+
+function update_chart(id, csv) {
+  var canvas = document.getElementById(id);
+  var ctx = canvas.getContext("2d");
   return new Chart(ctx, {
     type: "bar",
     plugins: [ChartDataSource],
@@ -11,7 +14,7 @@ function update_chart(id, geo) {
       plugins: {
         datasource: {
           type: "csv",
-          url: "timeseries/local_case.csv",
+          url: csv,
           rowMapping: "index",
         },
       },
@@ -19,13 +22,6 @@ function update_chart(id, geo) {
         xAxes: [
           {
             type: "time",
-            time: {
-              //parser: "YYYY-MM-DD",
-              //unit: "day",
-              //displayFormats: {
-                //day: "MMM D",
-              //},
-            },
           },
         ],
         yAxes: [
@@ -45,10 +41,13 @@ function set_text(id, text) {
   ctx.innerHTML = text;
 }
 
-update_chart("case-chart", "timeseries/local_new_cases.csv");
-update_chart("test-chart", [12, 19, 3, 5, 2, 3]);
-update_chart("death-chart", [12, 19, 3, 5, 2, 3]);
-set_text("active-cases", 10);
+function update(geo) {
+  charts.forEach((chart) => chart.destroy())
+  charts = ["case", "test", "death"].map((chart) =>
+    update_chart(chart + "-chart", "timeseries/" + geo + "_" + chart + ".csv")
+  );
+  console.log(charts)
+}
 
 function clicked(e) {
   e = e || window.event;
@@ -69,22 +68,29 @@ function clicked(e) {
 
   var geo_header = document.getElementsByClassName("geo-header");
   for (var i = 0; i < geo_header.length; i++) {
-    var inner = ""
+    var inner = "";
     switch (geo) {
       case "local":
-        inner = "Princeton Township"
+        inner = "Princeton Township";
         break;
       case "county":
-        inner = "Mercer County"
+        inner = "Mercer County";
         break;
       case "state":
-        inner = "New Jersey"
+        inner = "New Jersey";
         break;
       case "national":
-        inner = "United States"
+        inner = "United States";
         break;
     }
-    geo_header[i].innerHTML = inner
+    geo_header[i].innerHTML = inner;
   }
+
+  update(geo);
 }
+
+window.onload = function initialize() {
+  set_text("active-cases", 10);
+  update("local");
+};
 
