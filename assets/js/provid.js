@@ -11,7 +11,7 @@ function update_chart(id, geo) {
       plugins: {
         datasource: {
           type: "csv",
-          url: "timeseries/local_new_cases.csv",
+          url: "timeseries/local_case.csv",
           rowMapping: "index",
         },
       },
@@ -45,7 +45,7 @@ function set_text(id, text) {
   ctx.innerHTML = text;
 }
 
-update_chart("case-chart", [12, 19, 3, 5, 2, 3]);
+update_chart("case-chart", "timeseries/local_new_cases.csv");
 update_chart("test-chart", [12, 19, 3, 5, 2, 3]);
 update_chart("death-chart", [12, 19, 3, 5, 2, 3]);
 set_text("active-cases", 10);
@@ -55,7 +55,7 @@ function clicked(e) {
   var targ = e.target || e.srcElement || e;
   if (targ.nodeType == 3) targ = targ.parentNode; // defeat Safari bug
 
-  geo = targ.id;
+  var geo = targ.id;
 
   var geo_nav = targ.parentNode.parentNode.getElementsByTagName("img");
 
@@ -69,7 +69,22 @@ function clicked(e) {
 
   var geo_header = document.getElementsByClassName("geo-header");
   for (var i = 0; i < geo_header.length; i++) {
-    geo_header[i].innerHTML = geo;
+    var inner = ""
+    switch (geo) {
+      case "local":
+        inner = "Princeton Township"
+        break;
+      case "county":
+        inner = "Mercer County"
+        break;
+      case "state":
+        inner = "New Jersey"
+        break;
+      case "national":
+        inner = "United States"
+        break;
+    }
+    geo_header[i].innerHTML = inner
   }
 }
 

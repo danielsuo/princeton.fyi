@@ -81,10 +81,11 @@ def update_local(data, dates):
 
     local_table = pd.concat([local_table, local_diffs], axis=1)
     local_table = local_table.round()
-    local_table = pad_zeros(local_table)
+    local_table = local_table.fillna(value=0)
+    local_table[local_table < 0] = 0
 
     local_table.to_csv("timeseries/local.csv")
-    local_table.new_cases.to_csv("timeseries/local_new_cases.csv")
+    local_table.new_cases.to_csv("timeseries/local_case.csv")
 
 
 def update_county(data, dates):
@@ -124,7 +125,8 @@ def update_county(data, dates):
     county_diffs.columns = [col.replace("total", "new") for col in county_table.columns]
 
     county_table = pd.concat([county_table, county_diffs], axis=1)
-    county_table = pad_zeros(county_table)
+    county_table = county_table.fillna(value=0)
+    county_table[county_table < 0] = 0
 
     county_table.to_csv("timeseries/county.csv")
 
