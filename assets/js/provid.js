@@ -2,7 +2,7 @@
 // https://stackoverflow.com/questions/53118166/how-to-set-time-scale-zoom-in-chartjs
 // https://github.com/chartjs/chartjs-plugin-zoom
 
-var charts = []
+var charts = [];
 
 function update_chart(id, csv) {
   var canvas = document.getElementById(id);
@@ -42,11 +42,10 @@ function set_text(id, text) {
 }
 
 function update(geo) {
-  charts.forEach((chart) => chart.destroy())
+  charts.forEach((chart) => chart.destroy());
   charts = ["case", "test", "death"].map((chart) =>
     update_chart(chart + "-chart", "timeseries/" + geo + "_" + chart + ".csv")
   );
-  console.log(charts)
 }
 
 function clicked(e) {
@@ -54,15 +53,14 @@ function clicked(e) {
   var targ = e.target || e.srcElement || e;
   if (targ.nodeType == 3) targ = targ.parentNode; // defeat Safari bug
 
-  var geo = targ.id;
+  geo = targ.id;
 
-  var geo_nav = targ.parentNode.parentNode.getElementsByTagName("img");
-
+  var geo_nav = document.getElementsByClassName("geo-nav");
   for (var i = 0; i < geo_nav.length; i++) {
-    if (geo_nav[i] != targ) {
-      geo_nav[i].classList.remove("bg-gradient-orange");
+    if (targ == geo_nav[i]) {
+      geo_nav[i].classList.remove("active");
     } else {
-      geo_nav[i].classList.add("bg-gradient-orange");
+      geo_nav[i].classList.add("active");
     }
   }
 

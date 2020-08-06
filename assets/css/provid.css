@@ -10,20 +10,3 @@
     right: 2em;
   }
 }
-
-.nav > li {
-  margin-left: .4em;
-  margin-bottom: .4em;
-}
-
-.nav > li img {
-  padding: .15em;
-  border-radius: .4em;
-  background: #dee2e6;
-}
-
-.nav > li img.active {
-  padding: .15em;
-  border-radius: .2em;
-}
-
