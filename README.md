@@ -11,5 +11,5 @@ Data and dashboard for Princeton, NJ-area folks.
 - State of New Jersey dashboard ([link](https://maps.arcgis.com/apps/MapSeries/index.html?appid=c2efd1898e48452e83d7218329e953d7))
 
 ## Notes
-This was hastily thrown together. Any errors, thoughtlessness, messiness are my fault.
+This was hastily thrown together. Any errors, thoughtlessness, messiness are my fault.Don't judge the code, you've done it too.
 
