@@ -45,15 +45,9 @@ def pad_zeros(table):
 
 def update_local(data, dates):
     local = {
-        "total_deaths": data["princeton"]
-        .df.total_deaths.iloc[::-1]
-        .rename("total_deaths"),
-        "total_cases": data["princeton"]
-        .df.total_positive.iloc[::-1]
-        .rename("total_cases"),
-        "total_active": data["princeton"]
-        .df.active_positive.iloc[::-1]
-        .rename("total_active"),
+        "total_deaths": data["princeton"].df.total_deaths.iloc[::-1].rename("total_deaths"),
+        "total_cases": data["princeton"].df.total_positive.iloc[::-1].rename("total_cases"),
+        "total_active": data["princeton"].df.active_positive.iloc[::-1].rename("total_active"),
         "total_tests": (
             data["princeton"].df.total_positive.iloc[::-1]
             + data["princeton"].df.total_negative.iloc[::-1]
@@ -65,11 +59,7 @@ def update_local(data, dates):
 
     for df in local:
         local_table = pd.merge(
-            pd.DataFrame(local_table),
-            local[df],
-            how="outer",
-            left_index=True,
-            right_index=True,
+            pd.DataFrame(local_table), local[df], how="outer", left_index=True, right_index=True,
         )
 
     local_table = pad_zeros(local_table)
@@ -120,11 +110,7 @@ def update_county(data, dates):
 
     for df in county:
         county_table = pd.merge(
-            pd.DataFrame(county_table),
-            county[df],
-            how="outer",
-            left_index=True,
-            right_index=True,
+            pd.DataFrame(county_table), county[df], how="outer", left_index=True, right_index=True,
         )
 
     county_table = pad_zeros(county_table)
@@ -164,9 +150,7 @@ def update_state(data, dates):
     state_table["total_tests"] = state_table.positive + state_table.negative
     state_table["total_cases"] = state_table.positive
     state_table["total_deaths"] = state_table.death
-    state_table["total_active"] = (
-        state_table.positive - state_table.death - state_table.recovered
-    )
+    state_table["total_active"] = state_table.positive - state_table.death - state_table.recovered
 
     state_table["total_positive"] = state_table.positive
 
@@ -218,18 +202,14 @@ def update_national(data, dates):
     ]
 
     national_diffs = national_table.diff()
-    national_diffs.columns = [
-        col.replace("total", "new") for col in national_table.columns
-    ]
+    national_diffs.columns = [col.replace("total", "new") for col in national_table.columns]
 
     national_table = pd.concat([national_table, national_diffs], axis=1)
     national_table = national_table.fillna(value=0)
     national_table[national_table < 0] = 0
 
     national_table["rolling_total_tests"] = national_table.total_tests.rolling(7).mean()
-    national_table["rolling_positive_tests"] = national_table.total_positive.rolling(
-        7
-    ).mean()
+    national_table["rolling_positive_tests"] = national_table.total_positive.rolling(7).mean()
     national_table["positive_test_rate"] = (
         national_table.rolling_positive_tests / national_table.rolling_total_tests * 100
     )
@@ -275,12 +255,9 @@ def update(national_patient=False):
         if "total_active" in table.columns:
             total_active = table.total_active[-2]
             increase_active = np.round(
-                (total_active - table.total_active[-9]) / table.total_active[-9] * 100,
-                decimals=2,
+                (total_active - table.total_active[-9]) / table.total_active[-9] * 100, decimals=2,
             )
-            per_10k_active = np.round(
-                total_active / results[geo]["population"] * 10000, decimals=2
-            )
+            per_10k_active = np.round(total_active / results[geo]["population"] * 10000, decimals=2)
 
             if np.isnan(increase_active):
                 increase_active = 0
@@ -289,12 +266,9 @@ def update(national_patient=False):
             increase_active = "N/A"
             per_10k_active = "N/A"
 
-        new_cases = np.round(
-            table.new_cases[-2] / results[geo]["population"] * 10000, decimals=2
-        )
+        new_cases = np.round(table.new_cases[-2] / results[geo]["population"] * 10000, decimals=2)
         increase_cases = np.round(
-            (table.new_cases[-2] - table.new_cases[-9]) / table.new_cases[-9] * 100,
-            decimals=2,
+            (table.new_cases[-2] - table.new_cases[-9]) / table.new_cases[-9] * 100, decimals=2,
         )
         if np.isnan(increase_cases):
             increase_cases = 0
@@ -304,8 +278,7 @@ def update(national_patient=False):
                 table.new_tests[-2] / results[geo]["population"] * 10000, decimals=2
             )
             increase_tests = np.round(
-                (table.new_tests[-2] - table.new_tests[-9]) / table.new_tests[-9] * 100,
-                decimals=2,
+                (table.new_tests[-2] - table.new_tests[-9]) / table.new_tests[-9] * 100, decimals=2,
             )
             if np.isnan(increase_tests):
                 increase_tests = 0
@@ -328,12 +301,9 @@ def update(national_patient=False):
             pct_positive = "N/A"
             increase_pct_positive = "N/A"
 
-        new_deaths = np.round(
-            table.new_deaths[-2] / results[geo]["population"] * 10000, decimals=2
-        )
+        new_deaths = np.round(table.new_deaths[-2] / results[geo]["population"] * 10000, decimals=2)
         increase_deaths = np.round(
-            (table.new_deaths[-2] - table.new_deaths[-9]) / table.new_deaths[-9] * 100,
-            decimals=2,
+            (table.new_deaths[-2] - table.new_deaths[-9]) / table.new_deaths[-9] * 100, decimals=2,
         )
 
         if np.isnan(increase_deaths):
@@ -359,3 +329,8 @@ def update(national_patient=False):
         json.dump(results, open("data/cards.json", "w"), ignore_nan=True)
 
 
+if __name__ == "__main__":
+    download()
+    update()
+
+all = ["Source"]
