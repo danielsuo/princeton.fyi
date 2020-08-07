@@ -73,10 +73,12 @@ function update_chart(id, csv) {
           {
             type: "bar",
             yAxisID: "new_tests",
+            order: 1,
           },
           {
             type: "line",
             yAxisID: "positive_test_rate",
+            order: 0,
           },
         ],
       },
@@ -165,7 +167,7 @@ function update(geo) {
 
 function clicked(e) {
   e = e || window.event;
-  e.preventDefault()
+  e.preventDefault();
   var targ = e.target || e.srcElement || e;
   if (targ.nodeType == 3) targ = targ.parentNode; // defeat Safari bug
 
@@ -174,7 +176,7 @@ function clicked(e) {
   }
 
   geo = targ.id;
-  console.log(geo)
+  console.log(geo);
 
   update_cards(geo);
 
