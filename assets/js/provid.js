@@ -6,6 +6,9 @@ var charts = [];
 var cards = {};
 
 function numberWithCommas(x) {
+  if (x == 0) {
+    return "0.00"
+  }
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
