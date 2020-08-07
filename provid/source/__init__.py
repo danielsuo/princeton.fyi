@@ -305,6 +305,8 @@ def update(national_patient=False):
         else:
             new_tests = "N/A"
             increase_tests = "N/A"
+            pct_positive = "N/A"
+            increase_pct_positive = "N/A"
 
         new_deaths = np.round(
             table.new_deaths[-2] / results[geo]["population"] * 10000, decimals=2
