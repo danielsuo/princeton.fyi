@@ -29,7 +29,7 @@ setup(
     ],
     keywords=["covid", "Princeton", "New Jersey", "NJ", "covid-19"],
     python_requires=">=3.4",
-    install_requires=["numpy", "jupyter", "pandas", "matplotlib", "requests"],
+    install_requires=["numpy", "jupyter", "pandas", "matplotlib", "requests", "simplejson"],
     extra_requires={"dev": ["black", "pylint"]},
     entry_points={
         "console_scripts": [

@@ -3,6 +3,59 @@
 // https://github.com/chartjs/chartjs-plugin-zoom
 
 var charts = [];
+var cards = {};
+
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function set_change(el, val) {
+  val = parseFloat(val);
+  el.classList.remove("text-success");
+  el.classList.remove("text-danger");
+  if (val < 0) {
+    el.classList.add("text-success");
+    el.innerHTML = "<i class='fa fa-arrow-down'></i>";
+    el.innerHTML += " " + val + "%"
+  } else if (val == 0) {
+    el.classList.add("text-failure");
+    el.innerHTML = "No change";
+  } else if (isNaN(val)) {
+    el.classList.add("text-failure");
+    el.innerHTML = "N/A";
+  } else {
+    el.classList.add("text-danger");
+    el.innerHTML = "<i class='fa fa-arrow-up'></i>";
+    el.innerHTML += " " + val + "%"
+  }
+}
+
+function update_cards(geo) {
+  card_values = document.getElementsByClassName("card-value");
+  card_changes = document.getElementsByClassName("card-change");
+
+  values = [
+    "total_active",
+    "per_10k_active",
+    "new_cases",
+    "new_tests",
+    "new_deaths",
+    "pct_positive",
+  ];
+  changes = [
+    "increase_active",
+    "increase_active",
+    "increase_cases",
+    "increase_tests",
+    "increase_deaths",
+    "increase_pct_positive",
+  ];
+
+  for (var i = 0; i < card_values.length; i++) {
+    card_values[i].innerHTML = numberWithCommas(cards[geo][values[i]]);
+    set_change(card_changes[i], cards[geo][changes[i]]);
+  }
+}
 
 function update_chart(id, csv) {
   var canvas = document.getElementById(id);
@@ -36,11 +89,6 @@ function update_chart(id, csv) {
   });
 }
 
-function set_text(id, text) {
-  var ctx = document.getElementById(id);
-  ctx.innerHTML = text;
-}
-
 function update(geo) {
   charts.forEach((chart) => chart.destroy());
   charts = ["case", "test", "death"].map((chart) =>
@@ -54,6 +102,8 @@ function clicked(e) {
   if (targ.nodeType == 3) targ = targ.parentNode; // defeat Safari bug
 
   geo = targ.id;
+
+  update_cards(geo);
 
   var geo_nav = document.getElementsByClassName("geo-nav");
   for (var i = 0; i < geo_nav.length; i++) {
@@ -87,8 +137,11 @@ function clicked(e) {
   update(geo);
 }
 
-window.onload = function initialize() {
-  set_text("active-cases", 10);
-  update("local");
-};
+update("local");
+$.getJSON("data/cards.json", function (json) {
+  cards = json;
+  update_cards("local");
+}).fail(function (jqxhr, textStatus, error) {
+  console.log(error);
+});
 
