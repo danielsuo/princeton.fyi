@@ -8,7 +8,7 @@ Data and dashboard for Princeton, NJ-area folks.
 - Princeton University data ([link](https://www.princeton.edu/content/covid-19-coronavirus-information))
 - Hospital capacity ([link](https://healthdata.gov/dataset/covid-19-estimated-patient-impact-and-hospital-capacity-state))
 - Testing / hospital data ([link](https://covidtracking.com/data/download))
-- State of New Jersey dashboard([link](https://maps.arcgis.com/apps/MapSeries/index.html?appid=c2efd1898e48452e83d7218329e953d7))
+- State of New Jersey dashboard ([link](https://maps.arcgis.com/apps/MapSeries/index.html?appid=c2efd1898e48452e83d7218329e953d7))
 
 ## Notes
 This was hastily thrown together. Any errors, thoughtlessness, messiness are my fault.

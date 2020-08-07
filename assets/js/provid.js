@@ -63,6 +63,65 @@ function update_cards(geo) {
 function update_chart(id, csv) {
   var canvas = document.getElementById(id);
   var ctx = canvas.getContext("2d");
+
+  if (id == "test-chart") {
+    console.log("set");
+    return new Chart(ctx, {
+      type: "bar",
+      plugins: [ChartDataSource],
+      data: {
+        datasets: [
+          {
+            type: "bar",
+            yAxisID: "new_tests",
+          },
+          {
+            type: "line",
+            yAxisID: "positive_test_rate",
+          },
+        ],
+      },
+      options: {
+        plugins: {
+          datasource: {
+            type: "csv",
+            url: csv,
+            rowMapping: "index",
+          },
+        },
+        scales: {
+          xAxes: [
+            {
+              type: "time",
+            },
+          ],
+          yAxes: [
+            {
+              id: "new_tests",
+              position: "left",
+              ticks: {
+                beginAtZero: true,
+                userCallback: function (value, index, values) {
+                  value = value.toString();
+                  value = value.split(/(?=(?:...)*$)/);
+                  value = value.join(",");
+                  return value;
+                },
+              },
+            },
+            {
+              id: "positive_test_rate",
+              position: "right",
+              scaleLabel: {
+                display: true,
+                labelString: "Positive test rate (%)",
+              },
+            },
+          ],
+        },
+      },
+    });
+  }
   return new Chart(ctx, {
     type: "bar",
     plugins: [ChartDataSource],

@@ -46,18 +46,19 @@ def pad_zeros(table):
 def update_local(data, dates):
     local = {
         "total_deaths": data["princeton"]
-        .df.total_deaths.iloc[::-2]
+        .df.total_deaths.iloc[::-1]
         .rename("total_deaths"),
         "total_cases": data["princeton"]
-        .df.total_positive.iloc[::-2]
+        .df.total_positive.iloc[::-1]
         .rename("total_cases"),
         "total_active": data["princeton"]
-        .df.active_positive.iloc[::-2]
+        .df.active_positive.iloc[::-1]
         .rename("total_active"),
         "total_tests": (
-            data["princeton"].df.total_positive.iloc[::-2]
-            + data["princeton"].df.total_negative.iloc[::-2]
+            data["princeton"].df.total_positive.iloc[::-1]
+            + data["princeton"].df.total_negative.iloc[::-1]
         ).rename("total_tests"),
+        "total_positive": data["princeton"].df.total_positive.iloc[::-1],
     }
 
     local_table = dates
@@ -85,9 +86,15 @@ def update_local(data, dates):
     local_table = local_table.fillna(value=0)
     local_table[local_table < 0] = 0
 
+    local_table["rolling_total_tests"] = local_table.total_tests.rolling(7).mean()
+    local_table["rolling_positive_tests"] = local_table.total_positive.rolling(7).mean()
+    local_table["positive_test_rate"] = (
+        local_table.rolling_positive_tests / local_table.rolling_total_tests * 100
+    )
+
     local_table.to_csv("data/local.csv")
     local_table.new_cases.to_csv("data/local_case.csv")
-    local_table.new_tests.to_csv("data/local_test.csv")
+    local_table[["new_tests", "positive_test_rate"]].to_csv("data/local_test.csv")
     local_table.new_deaths.to_csv("data/local_death.csv")
 
     return local_table
@@ -137,7 +144,8 @@ def update_county(data, dates):
     county_table.new_cases.to_csv("data/county_case.csv")
     county_table.new_deaths.to_csv("data/county_death.csv")
     county_table["new_tests"] = 0
-    county_table.new_tests.to_csv("data/county_test.csv")
+    county_table["positive_test_rate"] = 0
+    county_table[["new_tests", "positive_test_rate"]].to_csv("data/county_test.csv")
 
     return county_table
 
@@ -160,8 +168,10 @@ def update_state(data, dates):
         state_table.positive - state_table.death - state_table.recovered
     )
 
+    state_table["total_positive"] = state_table.positive
+
     state_table = state_table[
-        ["total_tests", "total_cases", "total_deaths", "total_active"]
+        ["total_tests", "total_cases", "total_deaths", "total_active", "total_positive"]
     ]
     state_diffs = state_table.diff()
     state_diffs.columns = [col.replace("total", "new") for col in state_table.columns]
@@ -170,9 +180,15 @@ def update_state(data, dates):
     state_table = state_table.fillna(value=0)
     state_table[state_table < 0] = 0
 
+    state_table["rolling_total_tests"] = state_table.total_tests.rolling(7).mean()
+    state_table["rolling_positive_tests"] = state_table.total_positive.rolling(7).mean()
+    state_table["positive_test_rate"] = (
+        state_table.rolling_positive_tests / state_table.rolling_total_tests * 100
+    )
+
     state_table.to_csv("data/state.csv")
     state_table.new_cases.to_csv("data/state_case.csv")
-    state_table.new_tests.to_csv("data/state_test.csv")
+    state_table[["new_tests", "positive_test_rate"]].to_csv("data/state_test.csv")
     state_table.new_deaths.to_csv("data/state_death.csv")
 
     return state_table
@@ -195,10 +211,12 @@ def update_national(data, dates):
     national_table["total_active"] = (
         national_table.positive - national_table.death - national_table.recovered
     )
+    national_table["total_positive"] = national_table.positive
 
     national_table = national_table[
-        ["total_tests", "total_cases", "total_deaths", "total_active"]
+        ["total_tests", "total_cases", "total_deaths", "total_active", "total_positive"]
     ]
+
     national_diffs = national_table.diff()
     national_diffs.columns = [
         col.replace("total", "new") for col in national_table.columns
@@ -208,9 +226,17 @@ def update_national(data, dates):
     national_table = national_table.fillna(value=0)
     national_table[national_table < 0] = 0
 
+    national_table["rolling_total_tests"] = national_table.total_tests.rolling(7).mean()
+    national_table["rolling_positive_tests"] = national_table.total_positive.rolling(
+        7
+    ).mean()
+    national_table["positive_test_rate"] = (
+        national_table.rolling_positive_tests / national_table.rolling_total_tests * 100
+    )
+
     national_table.to_csv("data/national.csv")
     national_table.new_cases.to_csv("data/national_case.csv")
-    national_table.new_tests.to_csv("data/national_test.csv")
+    national_table[["new_tests", "positive_test_rate"]].to_csv("data/national_test.csv")
     national_table.new_deaths.to_csv("data/national_death.csv")
 
     return national_table
@@ -267,7 +293,8 @@ def update(national_patient=False):
             table.new_cases[-2] / results[geo]["population"] * 10000, decimals=2
         )
         increase_cases = np.round(
-            (table.new_cases[-2] - table.new_cases[-9]) / table.new_cases[-9] * 100, decimals=2
+            (table.new_cases[-2] - table.new_cases[-9]) / table.new_cases[-9] * 100,
+            decimals=2,
         )
         if np.isnan(increase_cases):
             increase_cases = 0
@@ -283,16 +310,9 @@ def update(national_patient=False):
             if np.isnan(increase_tests):
                 increase_tests = 0
 
-            pct_positive = (
-                (table.total_cases[-2] - table.total_cases[-9])
-                / (table.total_tests[-2] - table.total_tests[-9])
-                * 100
-            )
-            last_pct_positive = (
-                (table.total_cases[-9] - table.total_cases[-16])
-                / (table.total_tests[-9] - table.total_cases[-16])
-                * 100
-            )
+            pct_positive = np.round(table.positive_test_rate[-2], decimals=2)
+            last_pct_positive = np.round(table.positive_test_rate[-9], decimals=2)
+
             increase_pct_positive = np.round(
                 (pct_positive - last_pct_positive) / last_pct_positive, decimals=2
             )
@@ -312,7 +332,8 @@ def update(national_patient=False):
             table.new_deaths[-2] / results[geo]["population"] * 10000, decimals=2
         )
         increase_deaths = np.round(
-            (table.new_deaths[-2] - table.new_deaths[-9]) / table.new_deaths[-9] * 100, decimals=2
+            (table.new_deaths[-2] - table.new_deaths[-9]) / table.new_deaths[-9] * 100,
+            decimals=2,
         )
 
         if np.isnan(increase_deaths):
