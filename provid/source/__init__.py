@@ -1,6 +1,7 @@
 import datetime
 import pandas as pd
 import numpy as np
+import json
 
 from provid.source._source import Source
 
@@ -37,7 +38,7 @@ def download(national_patient=False, fetch=True):
 
 def pad_zeros(table):
     for col in table.columns:
-        table[col].iloc[:np.argmin(table[col])] = 0
+        table[col].iloc[: np.argmin(table[col])] = 0
 
     return table
 
@@ -84,10 +85,12 @@ def update_local(data, dates):
     local_table = local_table.fillna(value=0)
     local_table[local_table < 0] = 0
 
-    local_table.to_csv("timeseries/local.csv")
-    local_table.new_cases.to_csv("timeseries/local_case.csv")
-    local_table.new_tests.to_csv("timeseries/local_test.csv")
-    local_table.new_deaths.to_csv("timeseries/local_death.csv")
+    local_table.to_csv("data/local.csv")
+    local_table.new_cases.to_csv("data/local_case.csv")
+    local_table.new_tests.to_csv("data/local_test.csv")
+    local_table.new_deaths.to_csv("data/local_death.csv")
+
+    return local_table
 
 
 def update_county(data, dates):
@@ -130,11 +133,13 @@ def update_county(data, dates):
     county_table = county_table.fillna(value=0)
     county_table[county_table < 0] = 0
 
-    county_table.to_csv("timeseries/county.csv")
-    county_table.new_cases.to_csv("timeseries/county_case.csv")
-    county_table.new_deaths.to_csv("timeseries/county_death.csv")
+    county_table.to_csv("data/county.csv")
+    county_table.new_cases.to_csv("data/county_case.csv")
+    county_table.new_deaths.to_csv("data/county_death.csv")
     county_table["new_tests"] = 0
-    county_table.new_tests.to_csv("timeseries/county_test.csv")
+    county_table.new_tests.to_csv("data/county_test.csv")
+
+    return county_table
 
 
 def update_state(data, dates):
@@ -151,8 +156,13 @@ def update_state(data, dates):
     state_table["total_tests"] = state_table.positive + state_table.negative
     state_table["total_cases"] = state_table.positive
     state_table["total_deaths"] = state_table.death
+    state_table["total_active"] = (
+        state_table.positive - state_table.death - state_table.recovered
+    )
 
-    state_table = state_table[["total_tests", "total_cases", "total_deaths"]]
+    state_table = state_table[
+        ["total_tests", "total_cases", "total_deaths", "total_active"]
+    ]
     state_diffs = state_table.diff()
     state_diffs.columns = [col.replace("total", "new") for col in state_table.columns]
 
@@ -160,10 +170,12 @@ def update_state(data, dates):
     state_table = state_table.fillna(value=0)
     state_table[state_table < 0] = 0
 
-    state_table.to_csv("timeseries/state.csv")
-    state_table.new_cases.to_csv("timeseries/state_case.csv")
-    state_table.new_tests.to_csv("timeseries/state_test.csv")
-    state_table.new_deaths.to_csv("timeseries/state_death.csv")
+    state_table.to_csv("data/state.csv")
+    state_table.new_cases.to_csv("data/state_case.csv")
+    state_table.new_tests.to_csv("data/state_test.csv")
+    state_table.new_deaths.to_csv("data/state_death.csv")
+
+    return state_table
 
 
 def update_national(data, dates):
@@ -180,19 +192,28 @@ def update_national(data, dates):
     national_table["total_tests"] = national_table.positive + national_table.negative
     national_table["total_cases"] = national_table.positive
     national_table["total_deaths"] = national_table.death
+    national_table["total_active"] = (
+        national_table.positive - national_table.death - national_table.recovered
+    )
 
-    national_table = national_table[["total_tests", "total_cases", "total_deaths"]]
+    national_table = national_table[
+        ["total_tests", "total_cases", "total_deaths", "total_active"]
+    ]
     national_diffs = national_table.diff()
-    national_diffs.columns = [col.replace("total", "new") for col in national_table.columns]
+    national_diffs.columns = [
+        col.replace("total", "new") for col in national_table.columns
+    ]
 
     national_table = pd.concat([national_table, national_diffs], axis=1)
     national_table = national_table.fillna(value=0)
     national_table[national_table < 0] = 0
 
-    national_table.to_csv("timeseries/national.csv")
-    national_table.new_cases.to_csv("timeseries/national_case.csv")
-    national_table.new_tests.to_csv("timeseries/national_test.csv")
-    national_table.new_deaths.to_csv("timeseries/national_death.csv")
+    national_table.to_csv("data/national.csv")
+    national_table.new_cases.to_csv("data/national_case.csv")
+    national_table.new_tests.to_csv("data/national_test.csv")
+    national_table.new_deaths.to_csv("data/national_death.csv")
+
+    return national_table
 
 
 def update(national_patient=False):
@@ -214,7 +235,94 @@ def update(national_patient=False):
     )
     dates.index = dates.iloc[:, 0]
 
-    update_local(data, dates)
-    update_county(data, dates)
-    update_state(data, dates)
-    update_national(data, dates)
+    # https://www.census.gov/programs-surveys/popest/data/tables.2019.html
+    results = {
+        "local": {"population": 31187},
+        "state": {"population": 8882190},
+        "county": {"population": 367430},
+        "national": {"population": 329131338},
+    }
+
+    for geo in results:
+        table = globals()[f"update_{geo}"](data, dates)
+
+        if "total_active" in table.columns:
+            total_active = table.total_active[-1]
+            increase_active = np.round(
+                (total_active - table.total_active[-8]) / table.total_active[-8] * 100,
+                decimals=2,
+            )
+            per_10k_active = np.round(
+                total_active / results[geo]["population"] * 10000, decimals=2
+            )
+
+            if np.isnan(increase_active):
+                increase_active = 0
+        else:
+            total_active = np.nan
+            increase_active = np.nan
+            per_10k_active = np.nan
+
+        new_cases = table.new_cases[-1]
+        increase_cases = np.round(
+            (new_cases - table.new_cases[-8]) / table.new_cases[-8] * 100, decimals=2
+        )
+        if np.isnan(increase_cases):
+            increase_cases = 0
+
+        if "total_tests" in table.columns:
+            new_tests = table.new_tests[-1]
+            increase_tests = np.round(
+                (new_tests - table.new_tests[-8]) / table.new_tests[-8] * 100,
+                decimals=2,
+            )
+            if np.isnan(increase_tests):
+                increase_tests = 0
+
+            pct_positive = (table.total_cases[-1] - table.total_cases[-8]) / (
+                table.total_tests[-1] - table.total_tests[-8]
+            )
+            last_pct_positive = (table.total_cases[-8] - table.total_cases[-15]) / (
+                table.total_tests[-8] - table.total_cases[-15]
+            )
+            increase_pct_positive = np.round(
+                (pct_positive - last_pct_positive) / last_pct_positive, decimals=2
+            )
+
+            pct_positive = np.round(pct_positive, decimals=2)
+            if np.isnan(pct_positive):
+                pct_positive = 0
+            if np.isnan(increase_pct_positive):
+                increase_pct_positive = 0
+        else:
+            new_tests = np.nan
+            increase_tests = np.nan
+
+        new_deaths = table.new_deaths[-1]
+        increase_deaths = np.round(
+            (new_deaths - table.new_deaths[-8]) / table.new_deaths[-8] * 100, decimals=2
+        )
+
+        if np.isnan(increase_deaths):
+            increase_deaths = 0
+
+        values = [
+            "total_active",
+            "per_10k_active",
+            "increase_active",
+            "new_cases",
+            "increase_cases",
+            "new_tests",
+            "increase_tests",
+            "new_deaths",
+            "increase_deaths",
+            "pct_positive",
+            "increase_pct_positive",
+        ]
+
+        for value in values:
+            results[geo][value] = locals()[value]
+
+        json.dump(results, open("data/cards.json", "w"))
+
+

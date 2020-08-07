@@ -44,7 +44,7 @@ function set_text(id, text) {
 function update(geo) {
   charts.forEach((chart) => chart.destroy());
   charts = ["case", "test", "death"].map((chart) =>
-    update_chart(chart + "-chart", "timeseries/" + geo + "_" + chart + ".csv")
+    update_chart(chart + "-chart", "data/" + geo + "_" + chart + ".csv")
   );
 }
 
