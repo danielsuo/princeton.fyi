@@ -176,7 +176,6 @@ function clicked(e) {
   }
 
   geo = targ.id;
-  console.log(geo);
 
   update_cards(geo);
 
