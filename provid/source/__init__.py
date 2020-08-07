@@ -310,8 +310,8 @@ def update(national_patient=False):
             if np.isnan(increase_tests):
                 increase_tests = 0
 
-            pct_positive = np.round(table.positive_test_rate[-2], decimals=2)
-            last_pct_positive = np.round(table.positive_test_rate[-9], decimals=2)
+            pct_positive = table.positive_test_rate[-2]
+            last_pct_positive = table.positive_test_rate[-9]
 
             increase_pct_positive = np.round(
                 (pct_positive - last_pct_positive) / last_pct_positive, decimals=2
