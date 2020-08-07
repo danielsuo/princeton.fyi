@@ -65,7 +65,6 @@ function update_chart(id, csv) {
   var ctx = canvas.getContext("2d");
 
   if (id == "test-chart") {
-    console.log("set");
     return new Chart(ctx, {
       type: "bar",
       plugins: [ChartDataSource],
@@ -166,10 +165,16 @@ function update(geo) {
 
 function clicked(e) {
   e = e || window.event;
+  e.preventDefault()
   var targ = e.target || e.srcElement || e;
   if (targ.nodeType == 3) targ = targ.parentNode; // defeat Safari bug
 
+  if (targ.id == "") {
+    targ = targ.parentNode;
+  }
+
   geo = targ.id;
+  console.log(geo)
 
   update_cards(geo);
 
