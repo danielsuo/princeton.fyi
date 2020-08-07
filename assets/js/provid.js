@@ -5,8 +5,12 @@
 var charts = [];
 var cards = {};
 
-function numberWithCommas(x) {
-  if (x == 0) {
+function round(value) {
+  return Math.round(value * 10) / 10;
+}
+
+function numberWithCommas(x, decimal = true) {
+  if (x == 0 && decimal) {
     return "0.00";
   }
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -83,6 +87,23 @@ function update_chart(id, csv) {
         ],
       },
       options: {
+        tooltips: {
+          callbacks: {
+            label: function (tooltipItem, data) {
+              var datasetLabel =
+                data.datasets[tooltipItem.datasetIndex].label || "Other";
+
+              var value = tooltipItem.value;
+              if (tooltipItem.datasetIndex == 1) {
+                value = round(value) + "%";
+              } else {
+                value = numberWithCommas(tooltipItem.value, false);
+              }
+
+              return datasetLabel + ": " + value;
+            },
+          },
+        },
         plugins: {
           datasource: {
             type: "csv",
@@ -127,6 +148,17 @@ function update_chart(id, csv) {
     type: "bar",
     plugins: [ChartDataSource],
     options: {
+      tooltips: {
+        callbacks: {
+          label: function (tooltipItem, data) {
+            var datasetLabel =
+              data.datasets[tooltipItem.datasetIndex].label || "Other";
+            return (
+              datasetLabel + ": " + numberWithCommas(tooltipItem.value, false)
+            );
+          },
+        },
+      },
       plugins: {
         datasource: {
           type: "csv",
