@@ -7,7 +7,7 @@ var cards = {};
 
 function numberWithCommas(x) {
   if (x == 0) {
-    return "0.00"
+    return "0.00";
   }
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -19,7 +19,7 @@ function set_change(el, val) {
   if (val < 0) {
     el.classList.add("text-success");
     el.innerHTML = "<i class='fa fa-arrow-down'></i>";
-    el.innerHTML += " " + val + "%"
+    el.innerHTML += " " + val + "%";
   } else if (val == 0) {
     el.classList.add("text-failure");
     el.innerHTML = "No change";
@@ -29,7 +29,7 @@ function set_change(el, val) {
   } else {
     el.classList.add("text-danger");
     el.innerHTML = "<i class='fa fa-arrow-up'></i>";
-    el.innerHTML += " " + val + "%"
+    el.innerHTML += " " + val + "%";
   }
 }
 
@@ -84,6 +84,12 @@ function update_chart(id, csv) {
           {
             ticks: {
               beginAtZero: true,
+              userCallback: function (value, index, values) {
+                value = value.toString();
+                value = value.split(/(?=(?:...)*$)/);
+                value = value.join(",");
+                return value;
+              },
             },
           },
         ],
